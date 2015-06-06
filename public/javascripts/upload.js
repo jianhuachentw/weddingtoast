@@ -2,11 +2,11 @@ $(document).ready(function() {
  
     status('Choose a file :)');
   
-    $('#uploadForm').submit(function() {
+    $('#uploadForm').submit(function(event) {
         status('uploading the file ...');
  
         var formData = $('#uploadForm').serialize();
-        $('#uploadForm').attr("action", "/upload/" + g_fbId + "?name=" + response.name);
+        $('#uploadForm').attr("action", "/upload/" + g_fbResponse.id + "?name=" + g_fbResponse.name);
         $('#uploadForm').attr('action', $('#uploadForm').attr('action') + '&' + formData);
         $(this).ajaxSubmit({                                                                                                                 
  
@@ -26,6 +26,8 @@ $(document).ready(function() {
                 //$('<img/>').attr('src', imageUrlOnServer).attr('style', "width:256px;height:256px;border:0;").appendTo($('body'));
             }
         });
+
+        event.preventDefault();
  
         // Have to stop the form from submitting and causing                                                                                                       
         // a page refresh - don't forget this                                                                                                                      

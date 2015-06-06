@@ -10,7 +10,7 @@
 <script src="/javascripts/jquery.form.js"></script>
 <script src="/javascripts/upload.js"></script>
 <script>
-  var g_fbId;
+  var g_fbResponse;
   // This is called with the results from from FB.getLoginStatus().
   function statusChangeCallback(response) {
     console.log('statusChangeCallback');
@@ -91,7 +91,7 @@
       console.log('Successful login for: ' + response.name);
       document.getElementById('status').innerHTML =
         'Thanks for logging in, ' + response.name + '!';
-      g_fbId = response.id;
+      g_fbResponse = response;
       $('#uploadForm').show(duration=2000);
     });
   }

@@ -6,6 +6,8 @@
 var express = require('express');
 var routes = require('./routes');
 var user = require('./routes/user');
+var toasts = require('./routes/toasts');
+var raffleDraw = require('./routes/raffleDraw');
 var http = require('http');
 var path = require('path');
 var Busboy = require('busboy');
@@ -23,7 +25,8 @@ app.use(express.urlencoded());
 app.use(express.methodOverride());
 app.use(app.router);
 app.use(express.static(path.join(__dirname, '/public')));
-
+app.use(express.static(path.join(__dirname, '/unauthorized')));
+app.use(express.static(path.join(__dirname, '/authorized')));
 // development only
 if ('development' == app.get('env')) {
   app.use(express.errorHandler());
@@ -31,35 +34,14 @@ if ('development' == app.get('env')) {
 
 var fs = require('fs');
 var busboy = require('connect-busboy');
-app.use(busboy()); 
+app.use(busboy());
 
 
 app.get('/', routes.index);
 app.get('/users', user.list);
+app.get('/toasts', toasts.toasts);
+app.get('/raffle-draw', raffleDraw.raffleDraw);
 
-
-
-app.post('/api/photos', function(req, res) {
-    
-    var saveTo;
-    var busboy = new Busboy({ headers: req.headers });
-    busboy.on('file', function(fieldname, file, filename, encoding, mimetype) {
-      console.log(filename);
-      saveTo = filename;
-      console.log(saveTo);
-      res.send({
-        path: saveTo
-      });
-      file.pipe(fs.createWriteStream(saveTo));
-    });
-    busboy.on('finish', function() {
-      res.writeHead(200, { 'Connection': 'close' });
-      res.end("That's all folks!");
-    });
-
-    
-    return req.pipe(busboy);
-});
 
 app.post('/upload/:fbId', function(req, res) {
   console.log(req);
@@ -72,7 +54,17 @@ app.post('/upload/:fbId', function(req, res) {
   } catch(err) {
     console.log("mkdir " + folder + " error: " + err.code);
   }
-  
+
+  // save name
+  fs.writeFile(folder + "/name", req.query.name, function(err) {
+    if (err) console.log(err);
+  });
+
+  // save text
+  fs.writeFile(folder + "/text", req.query.userText, function(err) {
+    if (err) console.log(err);
+  });
+
   var path = '/images/' + req.params.fbId;
   var saveTo = folder + "/image";
 
@@ -92,6 +84,8 @@ app.post('/upload/:fbId', function(req, res) {
 
   return req.pipe(busboy);
 });
+
+
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
