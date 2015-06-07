@@ -1,7 +1,5 @@
 $(document).ready(function() {
  
-    status('Choose a file :)');
-  
     $('#uploadForm').submit(function(event) {
         status('uploading the file ...');
  

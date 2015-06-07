@@ -7,7 +7,7 @@ exports.raffleDraw = function(req, res){
 var fs = require('fs');
 
 var dataFolder = 'unauthorized';
-s.readdir(dataFolder, function(err, files) {
+fs.readdir(dataFolder, function(err, files) {
 	console.log(files);
 	var toasts = [];
 
