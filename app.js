@@ -8,6 +8,7 @@ var routes = require('./routes');
 var user = require('./routes/user');
 var toasts = require('./routes/toasts');
 var raffleDraw = require('./routes/raffleDraw');
+var pending = require('./routes/pending');
 var http = require('http');
 var path = require('path');
 var Busboy = require('busboy');
@@ -41,7 +42,24 @@ app.get('/', routes.index);
 app.get('/users', user.list);
 app.get('/toasts', toasts.toasts);
 app.get('/raffle-draw', raffleDraw.raffleDraw);
+app.get('/pending', pending.pending);
 
+app.post('/accept/:fbId', function(req, res) {
+  console.log("accepting " + req.params.fbId);
+
+  var oldPath = 'unauthorized/' + req.params.fbId;
+  var newPath = 'authorized/' + req.params.fbId;
+
+  if (fs.existsSync(newPath)) {
+    deleteFolderRecursive(newPath);
+  }
+
+  fs.rename(oldPath, newPath, function() {
+    res.send({
+      'id': req.params.fbId
+    });
+  });
+});
 
 app.post('/upload/:fbId', function(req, res) {
   console.log(req);
@@ -90,3 +108,18 @@ app.post('/upload/:fbId', function(req, res) {
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
 });
+
+
+function deleteFolderRecursive(path) {
+  if(fs.existsSync(path) ) {
+    fs.readdirSync(path).forEach(function(file,index){
+      var curPath = path + "/" + file;
+      if(fs.lstatSync(curPath).isDirectory()) { // recurse
+        deleteFolderRecursive(curPath);
+      } else { // delete file
+        fs.unlinkSync(curPath);
+      }
+    });
+    fs.rmdirSync(path);
+  }
+};

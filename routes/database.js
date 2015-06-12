@@ -2,11 +2,11 @@
  * Display the uploaded toasts
  */
 
-exports.toasts = function(req, res){
+exports.pending = function(req, res){
 
 var fs = require('fs');
 
-var dataFolder = 'authorized';
+var dataFolder = 'unauthorized';
 fs.readdir(dataFolder, function(err, files) {
 	console.log(files);
 	var toasts = [];
@@ -28,7 +28,7 @@ fs.readdir(dataFolder, function(err, files) {
 
 	console.log(JSON.stringify(toasts));
 
-	res.render('toasts', {
+	res.render('pending', {
 		title: 'Toasts',
 		toasts: toasts,
 	 });

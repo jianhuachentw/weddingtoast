@@ -2,11 +2,11 @@
  * Display the uploaded toasts
  */
 
-exports.toasts = function(req, res){
+exports.pending = function(req, res){
 
 var fs = require('fs');
 
-var dataFolder = 'authorized';
+var dataFolder = 'unauthorized';
 fs.readdir(dataFolder, function(err, files) {
 	console.log(files);
 	var toasts = [];
@@ -18,18 +18,17 @@ fs.readdir(dataFolder, function(err, files) {
 		var name = fs.readFileSync(toastFolder + '/name', "utf-8");
 		var text = fs.readFileSync(toastFolder + '/text', "utf-8");
 		var toast = {
+			fbId: file,
 			name: name,
 			text: text,
 			image: file + "/image",
 		}
-
+		console.log(JSON.stringify(toast));
 		toasts.push(toast);
 	});
 
-	console.log(JSON.stringify(toasts));
-
-	res.render('toasts', {
-		title: 'Toasts',
+	res.render('pending', {
+		title: 'Pending toasts',
 		toasts: toasts,
 	 });
 });
