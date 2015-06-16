@@ -61,6 +61,21 @@ app.post('/accept/:fbId', function(req, res) {
   });
 });
 
+app.post('/reject/:fbId', function(req, res) {
+  console.log("rejecting " + req.params.fbId);
+
+  var oldPath = 'unauthorized/' + req.params.fbId;
+  var newPath = 'authorized/' + req.params.fbId;
+
+  if (fs.existsSync(oldPath)) {
+    deleteFolderRecursive(oldPath);
+  }
+
+  res.send({
+      'id': req.params.fbId
+  });
+});
+
 app.post('/upload/:fbId', function(req, res) {
   console.log(req);
   console.log(req.query.name + " is uploading");
