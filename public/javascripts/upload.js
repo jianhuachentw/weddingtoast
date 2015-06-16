@@ -1,7 +1,7 @@
 $(document).ready(function() {
  
     $('#uploadForm').submit(function(event) {
-        status('uploading the file ...');
+        status('正在上傳...');
  
         var formData = $('#uploadForm').serialize();
         $('#uploadForm').attr("action", "/upload/" + g_fbResponse.id + "?name=" + g_fbResponse.name);
@@ -15,13 +15,7 @@ $(document).ready(function() {
             success: function(response) {
                 var imageUrlOnServer = response.path;
  
-                status('Success, file uploaded to:' + imageUrlOnServer);
-                $('#uploadedImage').attr(
-                    {
-                        src: imageUrlOnServer,
-                        style: "width:256px;height:256px;border:0;"
-                    });
-                //$('<img/>').attr('src', imageUrlOnServer).attr('style', "width:256px;height:256px;border:0;").appendTo($('body'));
+                status('上傳成功！');
             }
         });
 

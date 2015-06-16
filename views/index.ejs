@@ -1,14 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Facebook Login JavaScript Example - <%= title %></title>
+<title><%= title %></title>
 <link rel='stylesheet' href='/stylesheets/style.css' />
+<link href="css/bootstrap.min.css" rel="stylesheet">
 <meta charset="UTF-8">
 </head>
-<body>
+<body style="background: #DDDDEE;">
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 <script src="/javascripts/jquery.form.js"></script>
 <script src="/javascripts/upload.js"></script>
+<script type="text/javascript" src="/javascripts/bootstrap-filestyle.min.js"></script>
 <script>
   var g_fbResponse;
   // This is called with the results from from FB.getLoginStatus().
@@ -28,13 +31,13 @@
       document.getElementById('status').innerHTML = 'Please log ' +
         'into this app.';
 
-      $('#uploadForm').hide(duration=2000);
+      $//('#uploadForm').hide(duration=2000);
     } else {
       // The person is not logged into Facebook, so we're not sure if
       // they are logged into this app or not.
       document.getElementById('status').innerHTML = 'Please log ' +
         'into Facebook.';
-      $('#uploadForm').hide(duration=2000);
+      //$('#uploadForm').hide(duration=2000);
     }
   }
 
@@ -90,7 +93,7 @@
     FB.api('/me', function(response) {
       console.log('Successful login for: ' + response.name);
       document.getElementById('status').innerHTML =
-        'Thanks for logging in, ' + response.name + '!';
+        '歡迎你, ' + response.name + '!';
       g_fbResponse = response;
       $('#uploadForm').show(duration=2000);
     });
@@ -103,31 +106,35 @@
   the FB.login() function when clicked.
 -->
 
+<div class="container">
+
 <fb:login-button data-auto-logout-link="true" scope="public_profile,email" onlogin="checkLoginState();">
 </fb:login-button>
 <p>
-<div id="status">
-</div>
+<h2><label id="status"></label></h2>
 <p>
+
+
 
 <form id="uploadForm"
           enctype="multipart/form-data"
           action="/api/photos"
           method="post"
-          style="display:none;">
-  祝福的話:<br> 
-  <textarea rows="4" cols="50" form="uploadForm" name="userText"></textarea><br>
-  
-  選擇照片: <input type="file" id="userPhotoInput" name="userPhoto" accept="image/*"/><br>
+          style="display: none"
+          >
+  <h3><label>祝福的話:</label></h3>
+  <textarea class="form-control" rows="4" cols="50" form="uploadForm" name="userText"></textarea><br>
 
-  <button>上傳</button>
+  <input type="file" class="filestyle" id="userPhotoInput" name="userPhoto" accept="image/*"/><br>
+
+  <button type="button" class="btn btn-success btn-lg" onClick="$('#uploadForm').submit()">上傳</button>
 </form>
+</div>
 
+<script>
+  $(":file").filestyle({buttonBefore: true, size: "lg", buttonName: "btn-primary", buttonText: "選擇照片", iconName: "glyphicon-inbox"});
+</script>
 
-<p>
- 
-
-<img id="uploadedImage" />
 
 </body>
 </html>
