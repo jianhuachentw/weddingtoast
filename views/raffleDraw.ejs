@@ -55,6 +55,11 @@ function draw() {
 
 	count--;
 	var random = Math.floor((Math.random() * toasts.length));
+	if (1 != toasts.length) {
+		while (random == lastOne) {
+			random = Math.floor((Math.random() * toasts.length));
+		}
+	}
 	console.log("count = " + count + " random = " + random);
 	$('#toast' + random).show();
 	lastOne = random;
@@ -80,4 +85,4 @@ function interval(count) {
 </script>
 
 <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-<button onclick='reset(); draw();'>抽獎囉</button>
+<button onclick='reset(); if (toasts.length != 0) {draw();}'>抽獎囉</button>
