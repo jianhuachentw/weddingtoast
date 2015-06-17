@@ -6,7 +6,7 @@ exports.toasts = function(req, res){
 
 var fs = require('fs');
 
-var dataFolder = 'authorized';
+var dataFolder = 'public/authorized';
 fs.readdir(dataFolder, function(err, files) {
 	console.log(files);
 	var toasts = [];

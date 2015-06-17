@@ -28,8 +28,11 @@
 	  background-size: contain;
 	  background-position: center;
 	  background-repeat: no-repeat;
-	  height: 100%;
-	  width: 100%;"></div>
+	  height: 80%;
+	  width: 80%;
+	  display:block;
+	  margin: 0 auto;">
+    </div>
 </div>
 
 
@@ -43,7 +46,7 @@ for (i = 0; i < toasts.length; i++) {
 	var c = $('#toastBase').clone();
 	c.find('.name').text(toasts[i].name);
 	c.find('.text').text(toasts[i].text);
-	c.find('.image').css('background-image', "url(" + toasts[i].image + ")");
+	c.find('.image').css('background-image', "url(authorized/" + toasts[i].image + ")");
 	c.attr('id', 'toast' + i);
 
 	c.hide();

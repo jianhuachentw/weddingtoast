@@ -1,3 +1,3 @@
 tmp/
-unauthorized/*
-authorized/*
+public/unauthorized/*
+public/authorized/*

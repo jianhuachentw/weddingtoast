@@ -33,7 +33,7 @@ for (i = 0; i < toasts.length; i++) {
 	var c = $('#toastBase').clone();
 	c.find('.name').text(toasts[i].name);
 	c.find('.text').text(toasts[i].text);
-	c.find('.image').css('background-image', "url(" + toasts[i].image + ")");
+	c.find('.image').css('background-image', "url(authorized/" + toasts[i].image + ")");
 	c.attr('id', 'toast' + i);
 
 	c.hide();

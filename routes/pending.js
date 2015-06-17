@@ -6,7 +6,7 @@ exports.pending = function(req, res){
 
 var fs = require('fs');
 
-var dataFolder = 'unauthorized';
+var dataFolder = 'public/unauthorized';
 fs.readdir(dataFolder, function(err, files) {
 	console.log(files);
 	var toasts = [];

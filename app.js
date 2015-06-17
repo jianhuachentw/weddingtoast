@@ -26,8 +26,6 @@ app.use(express.urlencoded());
 app.use(express.methodOverride());
 app.use(app.router);
 app.use(express.static(path.join(__dirname, '/public')));
-app.use(express.static(path.join(__dirname, '/unauthorized')));
-app.use(express.static(path.join(__dirname, '/authorized')));
 // development only
 if ('development' == app.get('env')) {
   app.use(express.errorHandler());
@@ -47,8 +45,8 @@ app.get('/pending', pending.pending);
 app.post('/accept/:fbId', function(req, res) {
   console.log("accepting " + req.params.fbId);
 
-  var oldPath = 'unauthorized/' + req.params.fbId;
-  var newPath = 'authorized/' + req.params.fbId;
+  var oldPath = 'public/unauthorized/' + req.params.fbId;
+  var newPath = 'public/authorized/' + req.params.fbId;
 
   if (fs.existsSync(newPath)) {
     deleteFolderRecursive(newPath);
@@ -64,8 +62,7 @@ app.post('/accept/:fbId', function(req, res) {
 app.post('/reject/:fbId', function(req, res) {
   console.log("rejecting " + req.params.fbId);
 
-  var oldPath = 'unauthorized/' + req.params.fbId;
-  var newPath = 'authorized/' + req.params.fbId;
+  var oldPath = 'public/unauthorized/' + req.params.fbId;
 
   if (fs.existsSync(oldPath)) {
     deleteFolderRecursive(oldPath);
@@ -81,7 +78,7 @@ app.post('/upload/:fbId', function(req, res) {
   console.log(req.query.name + " is uploading");
   console.log(req.query.userText);
   // upload to unauthorized folder
-  var folder = "unauthorized/" + req.params.fbId;
+  var folder = "public/unauthorized/" + req.params.fbId;
   try {
     fs.mkdirSync(folder);
   } catch(err) {
