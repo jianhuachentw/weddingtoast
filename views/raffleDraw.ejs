@@ -1,27 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 
-
+<link href="css/bootstrap.min.css" rel="stylesheet">
 <style>
 .toast {
     position: absolute;
+    z-index: -1;
 }
 </style>
 
 
-<div class='toast' id='toastBase'>
-	<div class='name'></div>
-	<div class='text'></div>
+<style>
+.toast {
+	left: 0;
+	top: 0;
+    position: absolute;
+}
+</style>
+
+<meta charset="UTF-8">
+</head>
+
+<body style="background: #DDDDEE;">
+
+<div class="container">
+<br>
+<button type="button" class="btn btn-success btn-lg" style="z-index: 10;" onclick='reset(); if (toasts.length != 0) {draw();}'>抽獎囉</button>
+
+<div class='toast' id='toastBase' style="height:100%; width:100%; background: #DDDDEE; display:none;">
+	<h1>
+		<div style="text-align: center;">
+			<span class='name' style="color: blue"></span><span>&nbsp;說：</span><br>
+			<span class='text' style="display:block; margin: 0 auto; word-wrap:break-word; width:70%"></span>
+		</div>
+	</h1>
 	<div class='image'
 	style="background-image: url('');
 	  background-size: contain;
 	  background-position: center;
 	  background-repeat: no-repeat;
-	  position: absolute;
-	  height: 300px;
-	  width: 300px;"></div>
+	  height: 80%;
+	  width: 80%;
+	  display:block;
+	  margin: 0 auto;">
+    </div>
 </div>
-
+</div>
 
 <script>
 
@@ -84,5 +112,5 @@ function interval(count) {
 
 </script>
 
-<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-<button onclick='reset(); if (toasts.length != 0) {draw();}'>抽獎囉</button>
+</body>
+</html>
