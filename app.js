@@ -14,6 +14,7 @@ var http = require('http');
 var path = require('path');
 var Busboy = require('busboy');
 var os = require('os');
+var gm = require('gm');
 var app = express();
 
 // all environments
@@ -106,20 +107,20 @@ app.post('/upload/:fbId', function(req, res) {
   });
 
   var path = '/images/' + req.params.fbId;
-  var saveTo = folder + "/image";
-
+  var saveTo;
   var busboy = new Busboy({ headers: req.headers });
   busboy.on('file', function(fieldname, file, filename, encoding, mimetype) {
     console.log('fbId = ' + req.params.fbId + 'file: ' + filename);
-
+    saveTo = folder + "/" + filename;
     file.pipe(fs.createWriteStream(saveTo));
   });
   busboy.on('finish', function() {
-    //res.writeHead(200, { 'Connection': 'close' });
+    gm(saveTo).resize(1024, 1024).write(folder + '/image', function(err) {
+      if (err) console.log(err);
+    });
     res.send({
       'path': path
     });
-    //res.end("That's all folks!");
   });
 
   return req.pipe(busboy);
