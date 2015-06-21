@@ -11,12 +11,20 @@
 	left: 0;
 	top: 0;
     position: absolute;
+    z-index: -1
+}
+.label-as-badge {
+    border-radius: 1em;
 }
 </style>
 
 <meta charset="UTF-8">
 </head>
 <body>
+
+<span style="float: right; margin: 0 auto; display:inline-block;" class="label label-primary label-as-badge">
+	<h5>留言人數: <span id="count"></span></h5>
+</span>
 
 <div class='toast' id='toastBase' style="height:100%; width:100%; background: #DDDDEE; display: none;">
 	<h1>
@@ -48,9 +56,6 @@ var toasts = [];
 
 
 updateToasts(newToasts);
-
-
-
 
 if (0 != toasts.length) {
 	draw();
@@ -110,6 +115,7 @@ function updateToasts(newToasts) {
 			toasts.push(newToasts[i]);
 		}
 	}
+	$('#count').text(toasts.length);
 }
 
 </script>

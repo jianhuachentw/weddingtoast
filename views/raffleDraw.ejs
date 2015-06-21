@@ -8,17 +8,14 @@
 <link href="css/bootstrap.min.css" rel="stylesheet">
 <style>
 .toast {
+    left: 0;
+    top: 0;
     position: absolute;
     z-index: -1;
 }
-</style>
 
-
-<style>
-.toast {
-	left: 0;
-	top: 0;
-    position: absolute;
+.label-as-badge {
+    border-radius: 1em;
 }
 </style>
 
@@ -28,8 +25,15 @@
 <body style="background: #DDDDEE;">
 
 <div class="container">
+
 <br>
-<button type="button" class="btn btn-success btn-lg" style="z-index: 10;" onclick='reset(); if (toasts.length != 0) {draw();}'>抽獎囉</button>
+<div>
+<button type="button" class="btn btn-success btn-lg" style="z-index: 10; float: left;" onclick='reset(); if (toasts.length != 0) {draw();}'>抽獎囉</button>
+
+	<span style="float: right; margin: 0 auto; display:inline-block;" class="label label-primary label-as-badge">
+	<h5>留言人數: <span id="count"></span></h5>
+	</span>
+</div>
 
 <div class='toast' id='toastBase' style="height:100%; width:100%; background: #DDDDEE; display:none;">
 	<h1>
@@ -52,25 +56,55 @@
 </div>
 
 <script>
-
-var toasts = <%- JSON.stringify(toasts) %>;
-
-
-candidates = [];
-for (i = 0; i < toasts.length; i++) {
-	var c = $('#toastBase').clone();
-	c.find('.name').text(toasts[i].name);
-	c.find('.text').text(toasts[i].text);
-	c.find('.image').css('background-image', "url(authorized/" + toasts[i].image + ")");
-	c.attr('id', 'toast' + i);
-
-	c.hide();
-	$('#toastBase').after(c);
-	//candidates.push(c);
-}
-
+var index = 0;
 var count = 300;
 var lastOne = -1;
+var newToasts = <%- JSON.stringify(toasts) %>;
+var toasts = [];
+updateToasts(newToasts);
+
+setInterval(updateToastsFromServer, 60000);
+
+function updateToastsFromServer() {
+	$.get( "get-toasts", function(newToasts) {
+		updateToasts(newToasts);
+	});
+}
+
+function updateToasts(newToasts) {
+	for (i = 0; i < newToasts.length; i++) {
+		var found = false;
+		for (j = 0; j < toasts.length; j++) {
+			if (newToasts[i].id === toasts[j].id) {
+				found = true;
+				break;
+			}
+		}
+
+		var t;
+		if (found) {
+			t = $('#toast' + toasts[j].index);
+			if (toasts[j].serial < newToasts[i].serial) {
+				t.find('.name').text(newToasts[i].name);
+				t.find('.text').text(newToasts[i].text);
+				var d = new Date();
+				t.find('.image').css('background-image', "url(authorized/" + newToasts[i].image + "?" + d.getTime() + ")");
+				newToasts[i].index = toasts[j].index;
+				toasts[j] = newToasts[i];
+			}
+		} else {
+			newToasts[i].index = index++;
+			t = $('#toastBase').clone();
+			t.attr('id', 'toast' + newToasts[i].index);
+			$('#toastBase').after(t);
+			t.find('.name').text(newToasts[i].name);
+			t.find('.text').text(newToasts[i].text);
+			t.find('.image').css('background-image', "url(authorized/" + newToasts[i].image + ")");
+			toasts.push(newToasts[i]);
+		}
+	}
+	$('#count').text(toasts.length);
+}
 
 function reset() {
 	count = 300;
