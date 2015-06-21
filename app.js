@@ -9,6 +9,7 @@ var user = require('./routes/user');
 var toasts = require('./routes/toasts');
 var raffleDraw = require('./routes/raffleDraw');
 var pending = require('./routes/pending');
+var database = require('./routes/database');
 var http = require('http');
 var path = require('path');
 var Busboy = require('busboy');
@@ -48,13 +49,23 @@ app.post('/accept/:fbId', function(req, res) {
   var oldPath = 'public/unauthorized/' + req.params.fbId;
   var newPath = 'public/authorized/' + req.params.fbId;
 
+  var serial = 0;
   if (fs.existsSync(newPath)) {
+    try {
+      serial = Number(fs.readFileSync(newPath + '/serial'));
+    } catch (ex) {
+      // do nothing
+    }
+
     deleteFolderRecursive(newPath);
   }
 
   fs.rename(oldPath, newPath, function() {
-    res.send({
-      'id': req.params.fbId
+    fs.writeFile(newPath + '/serial', serial + 1, function(err) {
+      if (err) console.log(err);
+      res.send({
+        'id': req.params.fbId
+      });
     });
   });
 });
@@ -74,7 +85,6 @@ app.post('/reject/:fbId', function(req, res) {
 });
 
 app.post('/upload/:fbId', function(req, res) {
-  console.log(req);
   console.log(req.query.name + " is uploading");
   console.log(req.query.userText);
   // upload to unauthorized folder
@@ -115,6 +125,11 @@ app.post('/upload/:fbId', function(req, res) {
   return req.pipe(busboy);
 });
 
+app.get('/get-toasts', function(req, res) {
+  database.getToasts('authorized', function(toasts) {
+      res.send(toasts);
+  });
+});
 
 
 http.createServer(app).listen(app.get('port'), function(){

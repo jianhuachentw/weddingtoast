@@ -3,7 +3,7 @@
 <head>
 
 <link href="css/bootstrap.min.css" rel="stylesheet">
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 
 
 <style>
@@ -40,27 +40,28 @@
 
 <script>
 
-var toasts = <%- JSON.stringify(toasts) %>;
+
+var index = 0;
+var lastOne = -1;
+var newToasts = <%- JSON.stringify(toasts) %>;
+var toasts = [];
 
 
-candidates = [];
-for (i = 0; i < toasts.length; i++) {
-	var c = $('#toastBase').clone();
-	c.find('.name').text(toasts[i].name);
-	c.find('.text').text(toasts[i].text);
-	c.find('.image').css('background-image', "url(authorized/" + toasts[i].image + ")");
-	c.attr('id', 'toast' + i);
+updateToasts(newToasts);
 
-	c.hide();
-	$('#toastBase').after(c);
-	//candidates.push(c);
+
+
+
+if (0 != toasts.length) {
+	draw();
 }
 
-var count = 300;
-var lastOne = -1;
+setInterval(updateToastsFromServer, 60000);
 
-function reset() {
-	count = 300;
+function updateToastsFromServer() {
+	$.get( "get-toasts", function(newToasts) {
+		updateToasts(newToasts);
+	});
 }
 
 function draw() {
@@ -77,9 +78,40 @@ function draw() {
 
 }
 
-if (0 != toasts.length) {
-	draw();
+function updateToasts(newToasts) {
+	for (i = 0; i < newToasts.length; i++) {
+		var found = false;
+		for (j = 0; j < toasts.length; j++) {
+			if (newToasts[i].id === toasts[j].id) {
+				found = true;
+				break;
+			}
+		}
+
+		var t;
+		if (found) {
+			t = $('#toast' + toasts[j].index);
+			if (toasts[j].serial < newToasts[i].serial) {
+				t.find('.name').text(newToasts[i].name);
+				t.find('.text').text(newToasts[i].text);
+				var d = new Date();
+				t.find('.image').css('background-image', "url(authorized/" + newToasts[i].image + "?" + d.getTime() + ")");
+				newToasts[i].index = toasts[j].index;
+				toasts[j] = newToasts[i];
+			}
+		} else {
+			newToasts[i].index = index++;
+			t = $('#toastBase').clone();
+			t.attr('id', 'toast' + newToasts[i].index);
+			$('#toastBase').after(t);
+			t.find('.name').text(newToasts[i].name);
+			t.find('.text').text(newToasts[i].text);
+			t.find('.image').css('background-image', "url(authorized/" + newToasts[i].image + ")");
+			toasts.push(newToasts[i]);
+		}
+	}
 }
+
 </script>
 
 </body>

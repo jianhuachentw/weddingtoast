@@ -8,7 +8,6 @@ var fs = require('fs');
 
 var dataFolder = 'public/' + folder;
 fs.readdir(dataFolder, function(err, files) {
-	console.log(files);
 	var toasts = [];
 
 	files.forEach(function(file, index) {
@@ -17,17 +16,22 @@ fs.readdir(dataFolder, function(err, files) {
 		var toastFolder = dataFolder + '/' + file;
 		var name = fs.readFileSync(toastFolder + '/name', "utf-8");
 		var text = fs.readFileSync(toastFolder + '/text', "utf-8");
+		var serial = 0;
+		try {
+			serial = fs.readFileSync(toastFolder + '/serial', "utf-8");
+		} catch (ex) {
+			// do nothing
+		}
 		var toast = {
+			id: file,
 			name: name,
 			text: text,
 			image: file + "/image",
+			serial: serial,
 		}
 
 		toasts.push(toast);
 	});
-
-	console.log(JSON.stringify(toasts));
-
 	callback(toasts);
 });
 

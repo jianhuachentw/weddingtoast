@@ -1,18 +1,18 @@
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <script>
 
-function accept(fbId) {
-	$.post( "/accept/" + fbId, function(data) {
-		$('#' + fbId).fadeOut(500, function() {
-			$('#' + fbId).remove();
+function accept(id) {
+	$.post( "/accept/" + id, function(data) {
+		$('#' + id).fadeOut(500, function() {
+			$('#' + id).remove();
 		});
 	});
 }
 
-function reject(fbId) {
-	$.post( "/reject/" + fbId, function(data) {
-		$('#' + fbId).fadeOut(500, function() {
-			$('#' + fbId).remove();
+function reject(id) {
+	$.post( "/reject/" + id, function(data) {
+		$('#' + id).fadeOut(500, function() {
+			$('#' + id).remove();
 		});
 	});
 }
@@ -20,7 +20,7 @@ function reject(fbId) {
 
 
 <% toasts.forEach(function(toast, index) { %>
-	<div id="<%= toast.fbId %>">
+	<div id="<%= toast.id %>">
 		<%= toast.name %><br>
 		<%= toast.text %><br>
 		<div style="background-image: url(/unauthorized/<%= toast.image %>);
@@ -30,7 +30,7 @@ function reject(fbId) {
 	  background-repeat: no-repeat;
 	  height: 300px;
 	  width: 300px;"> </div>
-	  <button onClick="accept('<%= toast.fbId %>')">允許</button><button onClick="reject('<%= toast.fbId %>')">拒絕並刪除</button>
+	  <button onClick="accept('<%= toast.id %>')">允許</button><button onClick="reject('<%= toast.id %>')">拒絕並刪除</button>
 	  <hr>
 	</div>
 <% }); %>
