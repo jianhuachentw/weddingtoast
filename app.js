@@ -115,7 +115,7 @@ app.post('/upload/:fbId', function(req, res) {
     file.pipe(fs.createWriteStream(saveTo));
   });
   busboy.on('finish', function() {
-    gm(saveTo).resize(1024, 1024).write(folder + '/image', function(err) {
+    gm(saveTo).autoOrient().resize(1024, 1024).write(folder + '/image', function(err) {
       if (err) console.log(err);
     });
     res.send({
