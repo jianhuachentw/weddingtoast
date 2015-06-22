@@ -7,7 +7,10 @@ $(document).ready(function() {
         $('#uploadForm').attr("action", "/upload/" + g_fbResponse.id + "?name=" + g_fbResponse.name);
         $('#uploadForm').attr('action', $('#uploadForm').attr('action') + '&' + formData);
         $(this).ajaxSubmit({                                                                                                                 
- 
+            uploadProgress: function(event, position, total, percentComplete) {
+                status('正在上傳...' + percentComplete + '%');
+            },
+
             error: function(xhr) {
                 status('Error: ' + xhr.status);
             },
