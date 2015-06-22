@@ -38,6 +38,7 @@
 <div class='toast' id='toastBase' style="height:100%; width:100%; background: #DDDDEE; display:none;">
 	<h1>
 		<div style="text-align: center;">
+            <img class='profile_pic' src=""></img>
 			<span class='name' style="color: blue"></span><span>&nbsp;說：</span><br>
 			<span class='text' style="display:block; margin: 0 auto; word-wrap:break-word; width:70%"></span>
 		</div>
@@ -85,6 +86,7 @@ function updateToasts(newToasts) {
 		if (found) {
 			t = $('#toast' + toasts[j].index);
 			if (toasts[j].serial < newToasts[i].serial) {
+                t.find('.profile_pic').attr('src', "//graph.facebook.com/" + newToasts[i].id + "/picture")
 				t.find('.name').text(newToasts[i].name);
 				t.find('.text').text(newToasts[i].text);
 				var d = new Date();
@@ -97,6 +99,7 @@ function updateToasts(newToasts) {
 			t = $('#toastBase').clone();
 			t.attr('id', 'toast' + newToasts[i].index);
 			$('#toastBase').after(t);
+            t.find('.profile_pic').attr('src', "//graph.facebook.com/" + newToasts[i].id + "/picture")
 			t.find('.name').text(newToasts[i].name);
 			t.find('.text').text(newToasts[i].text);
 			t.find('.image').css('background-image', "url(authorized/" + newToasts[i].image + ")");
