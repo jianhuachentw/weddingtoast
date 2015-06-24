@@ -2,17 +2,18 @@
 <html>
 <head>
 
-<link href="css/bootstrap.min.css" rel="stylesheet">
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 
-
+<link href="css/bootstrap.min.css" rel="stylesheet">
 <style>
 .toast {
-	left: 0;
-	top: 0;
+    left: 0;
+    top: 0;
     position: absolute;
-    z-index: -1
+    z-index: -1;
 }
+
 .label-as-badge {
     border-radius: 1em;
 }
@@ -70,20 +71,6 @@ function updateToastsFromServer() {
 	});
 }
 
-function draw() {
-	if (-1 != lastOne) {
-		$('#toast' + lastOne).fadeOut(1000);
-	}
-
-	var random = (lastOne + 1) % toasts.length;
-	console.log(" random = " + random);
-	$('#toast' + random).fadeIn(1000);
-	lastOne = random;
-
-	setTimeout(draw, 5000)
-
-}
-
 function updateToasts(newToasts) {
 	for (i = 0; i < newToasts.length; i++) {
 		var found = false;
@@ -96,20 +83,21 @@ function updateToasts(newToasts) {
 
 		var t;
 		if (found) {
-			t = $('#toast' + toasts[j].index);
-			if (toasts[j].serial < newToasts[i].serial) {
+			t = $('#toast' + toasts[j].id);
+			if (newToasts[i].hidden) {
+				t.remove();
+				toasts.splice(j, 1);
+			} else if (toasts[j].serial < newToasts[i].serial) {
 				t.find('.profile_pic').attr('src', "//graph.facebook.com/" + newToasts[i].id + "/picture")
 				t.find('.name').text(newToasts[i].name);
 				t.find('.text').text(newToasts[i].text);
 				var d = new Date();
 				t.find('.image').css('background-image', "url(authorized/" + newToasts[i].image + "?" + d.getTime() + ")");
-				newToasts[i].index = toasts[j].index;
 				toasts[j] = newToasts[i];
 			}
-		} else {
-			newToasts[i].index = index++;
+		} else if (!newToasts[i].hidden) {
 			t = $('#toastBase').clone();
-			t.attr('id', 'toast' + newToasts[i].index);
+			t.attr('id', 'toast' + newToasts[i].id);
 			$('#toastBase').after(t);
 			t.find('.profile_pic').attr('src', "//graph.facebook.com/" + newToasts[i].id + "/picture")
 			t.find('.name').text(newToasts[i].name);
@@ -119,6 +107,20 @@ function updateToasts(newToasts) {
 		}
 	}
 	$('#count').text(toasts.length);
+}
+
+function draw() {
+	if (-1 != lastOne && toasts[lastOne]) {
+		$('#toast' + toasts[lastOne].id).fadeOut(1000);
+	}
+
+	var random = (lastOne + 1) % toasts.length;
+	console.log(" random = " + random + " id " + toasts[random].id);
+	$('#toast' + toasts[random].id).fadeIn(1000);
+	lastOne = random;
+
+	setTimeout(draw, 5000)
+
 }
 
 </script>

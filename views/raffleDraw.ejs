@@ -84,20 +84,21 @@ function updateToasts(newToasts) {
 
 		var t;
 		if (found) {
-			t = $('#toast' + toasts[j].index);
-			if (toasts[j].serial < newToasts[i].serial) {
+			t = $('#toast' + toasts[j].id);
+			if (newToasts[i].hidden) {
+				t.remove();
+				toasts.splice(j, 1);
+			} else if (toasts[j].serial < newToasts[i].serial) {
                 t.find('.profile_pic').attr('src', "//graph.facebook.com/" + newToasts[i].id + "/picture")
 				t.find('.name').text(newToasts[i].name);
 				t.find('.text').text(newToasts[i].text);
 				var d = new Date();
 				t.find('.image').css('background-image', "url(authorized/" + newToasts[i].image + "?" + d.getTime() + ")");
-				newToasts[i].index = toasts[j].index;
 				toasts[j] = newToasts[i];
 			}
-		} else {
-			newToasts[i].index = index++;
+		} else if (!newToasts[i].hidden) {
 			t = $('#toastBase').clone();
-			t.attr('id', 'toast' + newToasts[i].index);
+			t.attr('id', 'toast' + newToasts[i].id);
 			$('#toastBase').after(t);
             t.find('.profile_pic').attr('src', "//graph.facebook.com/" + newToasts[i].id + "/picture")
 			t.find('.name').text(newToasts[i].name);
@@ -114,8 +115,8 @@ function reset() {
 }
 
 function draw() {
-	if (-1 != lastOne) {
-		$('#toast' + lastOne).hide();
+	if (-1 != lastOne && toasts[lastOne]) {
+		$('#toast' + toasts[lastOne].id).hide();
 	}
 
 	count--;
@@ -126,7 +127,7 @@ function draw() {
 		}
 	}
 	console.log("count = " + count + " random = " + random);
-	$('#toast' + random).show();
+	$('#toast' + toasts[random].id).show();
 	lastOne = random;
 	if (count > 0) {
 		setTimeout(draw, interval(count))

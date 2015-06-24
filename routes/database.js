@@ -22,12 +22,15 @@ fs.readdir(dataFolder, function(err, files) {
 		} catch (ex) {
 			// do nothing
 		}
+		var hidden = false;
+		hidden = fs.existsSync(toastFolder + '/hide');
 		var toast = {
 			id: file,
 			name: name,
 			text: text,
 			image: file + "/image",
 			serial: serial,
+			hidden: hidden,
 		}
 
 		toasts.push(toast);

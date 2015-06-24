@@ -1,0 +1,29 @@
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>
+
+function hide(id) {
+	$.post( "/hide/" + id, function(data) {
+		$('#' + id).fadeOut(500, function() {
+			$('#' + id).remove();
+		});
+	});
+}
+</script>
+
+
+<% toasts.forEach(function(toast, index) { %>
+	<% if (toast.hidden) { return; } %>
+	<div id="<%= toast.id %>">
+		<%= toast.name %><br>
+		<%= toast.text %><br>
+		<div style="background-image: url(/authorized/<%= toast.image %>);
+	  background-size: contain;
+
+	  background-position: center;
+	  background-repeat: no-repeat;
+	  height: 300px;
+	  width: 300px;"> </div>
+	  <button onClick="hide('<%= toast.id %>')">隱藏</button>
+	  <hr>
+	</div>
+<% }); %>

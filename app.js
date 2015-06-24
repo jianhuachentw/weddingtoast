@@ -9,6 +9,7 @@ var user = require('./routes/user');
 var toasts = require('./routes/toasts');
 var raffleDraw = require('./routes/raffleDraw');
 var pending = require('./routes/pending');
+var admin = require('./routes/admin');
 var database = require('./routes/database');
 var http = require('http');
 var path = require('path');
@@ -43,6 +44,7 @@ app.get('/users', user.list);
 app.get('/toasts', toasts.toasts);
 app.get('/raffle-draw', raffleDraw.raffleDraw);
 app.get('/pending', pending.pending);
+app.get('/admin', admin.admin);
 
 app.post('/accept/:fbId', function(req, res) {
   console.log("accepting " + req.params.fbId);
@@ -74,14 +76,27 @@ app.post('/accept/:fbId', function(req, res) {
 app.post('/reject/:fbId', function(req, res) {
   console.log("rejecting " + req.params.fbId);
 
-  var oldPath = 'public/unauthorized/' + req.params.fbId;
+  var path = 'public/unauthorized/' + req.params.fbId;
 
-  if (fs.existsSync(oldPath)) {
-    deleteFolderRecursive(oldPath);
+  if (fs.existsSync(path)) {
+    deleteFolderRecursive(path);
   }
 
   res.send({
       'id': req.params.fbId
+  });
+});
+
+app.post('/hide/:fbId', function(req, res) {
+  console.log("hiding " + req.params.fbId);
+
+  var path = 'public/authorized/' + req.params.fbId;
+
+  fs.writeFile(path + '/hide', 1, function(err) {
+    if (err) console.log(err);
+      res.send({
+        'id': req.params.fbId
+      });
   });
 });
 
