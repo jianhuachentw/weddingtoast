@@ -25,14 +25,15 @@
 
 <span style="float: right; margin: 0 auto; display:inline-block;" class="label label-primary label-as-badge">
 	<h5>留言人數: <span id="count"></span></h5>
+	<h5>拍貼人數: <span id="photo_count"></span></h5>
 </span>
 
-<div class='toast' id='toastBase' style="height:100%; width:100%; background: #DDDDEE; display: none;">
+<div class='toast' id='toastBase' style="height:100%; width:100%; background: #DDDDEE; display:none;">
 	<h1>
 		<div style="text-align: center;">
 			<img class='profile_pic' src=""></img>
-			<span class='name' style="color: blue"></span><span>&nbsp;說：</span><br>
-			<span class='text' style="display:block; margin: 0 auto; word-wrap:break-word; width:70%"></span>
+			<span class='name' style="color: blue"></span><span class='say'>&nbsp;說：</span><br>
+			<span class='text' style="display:block; margin: 0 auto; word-wrap:break-word; width:70%;"></span>
 		</div>
 	</h1>
 	<div class='image'
@@ -52,22 +53,35 @@
 
 
 var index = 0;
-var lastOne = -1;
+var lastToastIndex = -1;
+var lastPhotoIndex = -1;
 var newToasts = <%- JSON.stringify(toasts) %>;
+var newBoothPhotos = <%- JSON.stringify(photos) %>;
 var toasts = [];
-
+var boothPhotos = [];
+var serial = 0;
 
 updateToasts(newToasts);
+updatePhotoBooth(newBoothPhotos);
 
 if (0 != toasts.length) {
 	draw();
 }
 
-setInterval(updateToastsFromServer, 60000);
+setTimeout(updateToastsFromServer, 1000);
 
 function updateToastsFromServer() {
-	$.get( "get-toasts", function(newToasts) {
-		updateToasts(newToasts);
+	watchDog = setTimeout(updateToastsFromServer, 120000);
+	$.get( "get-toasts?serial=" + serial, function(resData) {
+		clearTimeout(watchDog);
+		if (serial != resData.serial) {
+			serial = resData.serial;
+			newToasts = resData.toasts;
+			updateToasts(newToasts);
+			newBoothPhotos = resData.photos;
+			updatePhotoBooth(newBoothPhotos);
+		}
+		setTimeout(updateToastsFromServer, 1000);
 	});
 }
 
@@ -109,18 +123,80 @@ function updateToasts(newToasts) {
 	$('#count').text(toasts.length);
 }
 
+function updatePhotoBooth(newBoothPhotos) {
+	for (i = 0; i < newBoothPhotos.length; i++) {
+		var found = false;
+		for (j = 0; j < boothPhotos.length; j++) {
+			if (newBoothPhotos[i] === boothPhotos[j]) {
+				found = true;
+				break;
+			}
+		}
+
+		var t;
+		if (!found) {
+			t = $('#toastBase').clone();
+			t.attr('id', 'photo' + basename(newBoothPhotos[i]));
+			$('#toastBase').after(t);
+			t.find('.profile_pic').attr('src', "")
+			t.find('.name').text('');
+			t.find('.text').text('');
+			t.find('.say').text('');
+			t.find('.image').css('background-image', "url(photobooth/" + newBoothPhotos[i] + ")");
+			boothPhotos.push(newBoothPhotos[i]);
+		}
+	}
+	$('#photo_count').text(boothPhotos.length);
+}
+
+function basename(filename) {
+	return filename.substr(0, filename.lastIndexOf('.'));
+}
+
+
+var SHOW_TOAST_INTERVAL = 5000;
+var SHOW_PHOTOBOOTH_INTERVAL = 4000;
+
+var SHOW_TOAST_PERCENT = 60;
+
 function draw() {
-	if (-1 != lastOne && toasts[lastOne]) {
-		$('#toast' + toasts[lastOne].id).fadeOut(1000);
+	hideLastShown();
+
+	var random = Math.random();
+	console.log('random = ' + random);
+	if (random < SHOW_TOAST_PERCENT * 0.01) {
+		drawToasts();
+		setTimeout(draw, SHOW_TOAST_INTERVAL)
+	} else {
+		drawPhotoBooth();
+		setTimeout(draw, SHOW_PHOTOBOOTH_INTERVAL)
 	}
 
-	var random = (lastOne + 1) % toasts.length;
+
+}
+
+function hideLastShown() {
+	if (-1 != lastToastIndex && toasts[lastToastIndex]) {
+		$('#toast' + toasts[lastToastIndex].id).fadeOut(1000);
+	}
+
+	if (-1 != lastPhotoIndex && boothPhotos[lastPhotoIndex]) {
+		$('#photo' + basename(boothPhotos[lastPhotoIndex])).fadeOut(1000);
+	}
+}
+
+function drawToasts() {
+	var random = (lastToastIndex + 1) % toasts.length;
 	console.log(" random = " + random + " id " + toasts[random].id);
 	$('#toast' + toasts[random].id).fadeIn(1000);
-	lastOne = random;
+	lastToastIndex = random;
+}
 
-	setTimeout(draw, 5000)
-
+function drawPhotoBooth() {
+	var random = (lastPhotoIndex + 1) % boothPhotos.length;
+	console.log(" random = " + random + " photo " + boothPhotos[random]);
+	$('#photo' + basename(boothPhotos[random])).fadeIn(1000);
+	lastPhotoIndex = random;
 }
 
 </script>

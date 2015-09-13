@@ -62,13 +62,22 @@ var count = 300;
 var lastOne = -1;
 var newToasts = <%- JSON.stringify(toasts) %>;
 var toasts = [];
+var serial = 0;
+
 updateToasts(newToasts);
 
-setInterval(updateToastsFromServer, 60000);
+setTimeout(updateToastsFromServer, 1000);
 
 function updateToastsFromServer() {
-	$.get( "get-toasts", function(newToasts) {
-		updateToasts(newToasts);
+	watchDog = setTimeout(updateToastsFromServer, 120000);
+	$.get( "get-toasts?serial=" + serial, function(resData) {
+		clearTimeout(watchDog);
+		if (serial != resData.serial) {
+			serial = resData.serial;
+			newToasts = resData.toasts;
+			updateToasts(newToasts);	
+		}
+		setTimeout(updateToastsFromServer, 1000);
 	});
 }
 

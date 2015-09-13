@@ -18,6 +18,11 @@ var os = require('os');
 var gm = require('gm');
 var app = express();
 
+var longPollingResponces = [];
+var longPollingSerialNumber = 1;
+var longPollingEmptyResponcesTimerId = -1;
+
+
 // all environments
 app.set('port', process.env.PORT || 80);
 app.set('views', path.join(__dirname, 'views'));
@@ -69,6 +74,7 @@ app.post('/accept/:fbId', function(req, res) {
       res.send({
         'id': req.params.fbId
       });
+      sendLongPollingResponces();
     });
   });
 });
@@ -97,6 +103,7 @@ app.post('/hide/:fbId', function(req, res) {
       res.send({
         'id': req.params.fbId
       });
+      sendLongPollingResponces();
   });
 });
 
@@ -121,11 +128,11 @@ app.post('/upload/:fbId', function(req, res) {
     if (err) console.log(err);
   });
 
-  var path = '/images/' + req.params.fbId;
+  var path = '/unauthorized/' + req.params.fbId;
   var saveTo;
   var busboy = new Busboy({ headers: req.headers });
   busboy.on('file', function(fieldname, file, filename, encoding, mimetype) {
-    console.log('fbId = ' + req.params.fbId + 'file: ' + filename);
+    console.log('fbId = ' + req.params.fbId + ' file: ' + filename);
     saveTo = folder + "/" + filename;
     file.pipe(fs.createWriteStream(saveTo));
   });
@@ -141,17 +148,96 @@ app.post('/upload/:fbId', function(req, res) {
   return req.pipe(busboy);
 });
 
-app.get('/get-toasts', function(req, res) {
-  database.getToasts('authorized', function(toasts) {
-      res.send(toasts);
+app.post('/uploadPhotoBooth', function(req, res) {
+  console.log("PhotoBooth is uploading");
+
+  // upload to unauthorized folder
+  var folder = "public/photobooth/";
+  try {
+    fs.mkdirSync(folder);
+  } catch(err) {
+    console.log("mkdir " + folder + " error: " + err.code);
+  }
+
+  var saveTo;
+  var busboy = new Busboy({ headers: req.headers });
+  var fileName;
+  busboy.on('file', function(fieldname, file, filename, encoding, mimetype) {
+    console.log('file: ' + filename);
+    saveTo = folder + "/" + filename;
+    fileName = filename;
+    file.pipe(fs.createWriteStream(saveTo));
   });
+  busboy.on('finish', function() {
+    gm(saveTo).autoOrient().resize(1024, 1024).write(folder + '/' + fileName + '.thumb', function(err) {
+      if (err) console.log(err);
+    });
+    var path = '/photobooth/' + fileName;
+    res.send({
+      'path': path
+    });
+    sendLongPollingResponces();
+  });
+
+  return req.pipe(busboy);
 });
 
+app.get('/get-toasts', function(req, res) {
+  if (req.query.serial != longPollingSerialNumber) {
+    database.getToasts('authorized', function(toasts) {
+      database.getBoothPhotos(function(photos) {
+        resData = {
+          serial: longPollingSerialNumber,
+          toasts: toasts,
+          photos: photos,
+        };
+        res.send(resData);
+      });
+    });
+  } else {
+    longPollingResponces.push(res);
+    console.log('pending longPollingResponces: ' + longPollingResponces.length);
+  }
+});
+
+setInterval(sendLongPollingEmptyResponces, 90000);
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
 });
 
+
+function sendLongPollingEmptyResponces() {
+  for (i = 0; i < longPollingResponces.length; i++) {
+    console.log('sending longPollingResponce ' + i);
+    resData = {
+      serial: longPollingSerialNumber,
+    };
+    longPollingResponces[i].send(resData);
+  }
+
+  longPollingResponces = [];
+}
+
+function sendLongPollingResponces() {
+  clearTimeout(longPollingEmptyResponcesTimerId);
+  longPollingSerialNumber++
+  database.getToasts('authorized', function(toasts) {
+    database.getBoothPhotos(function(photos) {
+      for (i = 0; i < longPollingResponces.length; i++) {
+        console.log('sending longPollingResponce ' + i);
+        resData = {
+          serial: longPollingSerialNumber,
+          toasts: toasts,
+          photos: photos,
+        };
+        longPollingResponces[i].send(resData);
+      }
+
+      longPollingResponces = [];
+    });
+  });
+}
 
 function deleteFolderRecursive(path) {
   if(fs.existsSync(path) ) {

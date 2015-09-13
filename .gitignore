@@ -1,3 +1,4 @@
 tmp/
 public/unauthorized/*
 public/authorized/*
+public/photobooth
