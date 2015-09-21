@@ -32,6 +32,7 @@
 
 	<span style="float: right; margin: 0 auto; display:inline-block;" class="label label-primary label-as-badge">
 	<h5>留言人數: <span id="count"></span></h5>
+	<h5>拍貼人數: <span id="photo_count"></span></h5>
 	</span>
 </div>
 
@@ -39,7 +40,7 @@
 	<h1>
 		<div style="text-align: center;">
             <img class='profile_pic' src=""></img>
-			<span class='name' style="color: blue"></span><span>&nbsp;說：</span><br>
+			<span class='name' style="color: blue"></span><span class='say'>&nbsp;說：</span><br>
 			<span class='text' style="display:block; margin: 0 auto; word-wrap:break-word; width:70%"></span>
 		</div>
 	</h1>
@@ -59,12 +60,17 @@
 <script>
 var index = 0;
 var count = 300;
-var lastOne = -1;
+var lastToastIndex = -1;
+var lastPhotoIndex = -1;
+var lastRandom = -1;
 var newToasts = <%- JSON.stringify(toasts) %>;
+var newBoothPhotos = <%- JSON.stringify(photos) %>;
 var toasts = [];
+var boothPhotos = [];
 var serial = 0;
 
 updateToasts(newToasts);
+updatePhotoBooth(newBoothPhotos);
 
 setTimeout(updateToastsFromServer, 1000);
 
@@ -75,7 +81,9 @@ function updateToastsFromServer() {
 		if (serial != resData.serial) {
 			serial = resData.serial;
 			newToasts = resData.toasts;
-			updateToasts(newToasts);	
+			updateToasts(newToasts);
+			newBoothPhotos = resData.photos;
+			updatePhotoBooth(newBoothPhotos);
 		}
 		setTimeout(updateToastsFromServer, 1000);
 	});
@@ -119,28 +127,83 @@ function updateToasts(newToasts) {
 	$('#count').text(toasts.length);
 }
 
+function updatePhotoBooth(newBoothPhotos) {
+	for (i = 0; i < newBoothPhotos.length; i++) {
+		var found = false;
+		for (j = 0; j < boothPhotos.length; j++) {
+			if (newBoothPhotos[i] === boothPhotos[j]) {
+				found = true;
+				break;
+			}
+		}
+
+		var t;
+		if (!found) {
+			t = $('#toastBase').clone();
+			t.attr('id', 'photo' + basename(newBoothPhotos[i]));
+			$('#toastBase').after(t);
+			t.find('.profile_pic').attr('src', "")
+			t.find('.name').text('');
+			t.find('.text').text('');
+			t.find('.say').text('');
+			t.find('.image').css('background-image', "url(photobooth/" + newBoothPhotos[i] + ")");
+			boothPhotos.push(newBoothPhotos[i]);
+		}
+	}
+	$('#photo_count').text(boothPhotos.length);
+}
+
+function basename(filename) {
+	return filename.substr(0, filename.lastIndexOf('.'));
+}
+
 function reset() {
 	count = 300;
 }
 
 function draw() {
-	if (-1 != lastOne && toasts[lastOne]) {
-		$('#toast' + toasts[lastOne].id).hide();
-	}
+	hideLastShown();
 
-	count--;
-	var random = Math.floor((Math.random() * toasts.length));
-	if (1 != toasts.length) {
-		while (random == lastOne) {
-			random = Math.floor((Math.random() * toasts.length));
+    var total = toasts.length + boothPhotos.length;
+	var random = Math.floor(Math.random() * total);
+	if (total > 1) {
+		while (random == lastRandom) {
+			random = Math.floor(Math.random() * total);
 		}
 	}
-	console.log("count = " + count + " random = " + random);
-	$('#toast' + toasts[random].id).show();
-	lastOne = random;
-	if (count > 0) {
-		setTimeout(draw, interval(count))
+	lastRandom = random;
+	count--;
+	console.log('count = ' + count + ' random = ' + random);
+	if (random < toasts.length) {
+		drawToasts(random);
+	} else {
+		random = random - toasts.length;
+		drawPhotoBooth(random);
 	}
+
+	if (count > 0) {
+		setTimeout(draw, interval(count));
+	}
+}
+
+function hideLastShown() {
+	if (-1 != lastToastIndex && toasts[lastToastIndex]) {
+		$('#toast' + toasts[lastToastIndex].id).hide();
+	}
+
+	if (-1 != lastPhotoIndex && boothPhotos[lastPhotoIndex]) {
+		$('#photo' + basename(boothPhotos[lastPhotoIndex])).hide();
+	}
+}
+
+function drawToasts(index) {
+	$('#toast' + toasts[index].id).show();
+	lastToastIndex = index;
+}
+
+function drawPhotoBooth(index) {
+	$('#photo' + basename(boothPhotos[index])).show();
+	lastPhotoIndex = index;
 }
 
 function interval(count) {
