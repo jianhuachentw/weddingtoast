@@ -151,12 +151,18 @@ app.post('/upload/:fbId', function(req, res) {
 app.post('/uploadPhotoBooth', function(req, res) {
   console.log("PhotoBooth is uploading");
 
-  // upload to unauthorized folder
   var folder = "public/photobooth/";
   try {
     fs.mkdirSync(folder);
   } catch(err) {
     console.log("mkdir " + folder + " error: " + err.code);
+  }
+
+  var origin_folder = "public/photobooth_origin/";
+  try {
+    fs.mkdirSync(origin_folder);
+  } catch(err) {
+    console.log("mkdir " + origin_folder + " error: " + err.code);
   }
 
   var saveTo;
@@ -169,14 +175,19 @@ app.post('/uploadPhotoBooth', function(req, res) {
     file.pipe(fs.createWriteStream(saveTo));
   });
   busboy.on('finish', function() {
-    gm(saveTo).autoOrient().resize(1024, 1024).write(folder + '/' + fileName + '.thumb', function(err) {
-      if (err) console.log(err);
+    var thumbName = fileName.split('.').join('_thumb.');
+    gm(saveTo).autoOrient().resize(1024, 1024).write(folder + '/' + thumbName, function(err) {
+      if (err) {
+        console.log(err);
+      } else {
+        fs.renameSync(folder + fileName, origin_folder + fileName);
+      }
+      var path = '/photobooth/' + fileName;
+      res.send({
+        'path': path
+      });
+      sendLongPollingResponces();
     });
-    var path = '/photobooth/' + fileName;
-    res.send({
-      'path': path
-    });
-    sendLongPollingResponces();
   });
 
   return req.pipe(busboy);
