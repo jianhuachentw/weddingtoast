@@ -143,10 +143,25 @@ function updatePhotoBooth(newBoothPhotos) {
 			t.find('.text').text('');
 			t.find('.say').text('');
 			t.find('.image').css('background-image', "url(photobooth/" + newBoothPhotos[i] + ")");
+			t.find('.image').css({'height': '90%', 'width': '90%'});
 			boothPhotos.push(newBoothPhotos[i]);
 		}
 	}
-	$('#photo_count').text(boothPhotos.length);
+    $('#photo_count').text(getBoothPhotoCount());
+}
+
+function getBoothPhotoCount() {
+    var count = 0;
+    for (i = 0; i < boothPhotos.length; i++) {
+        if (!isPlaceholder(boothPhotos[i])) {
+            count++;
+         }
+     }
+     return count;
+}
+
+function isPlaceholder(filename) {
+    return filename.indexOf('_n_') != -1;
 }
 
 function basename(filename) {
@@ -161,14 +176,14 @@ var SHOW_TOAST_PERCENT = 60;
 
 function draw() {
 	hideLastShown();
-
-	var random = Math.random();
+    var total = toasts.length + boothPhotos.length;
+	var random = Math.floor(Math.random() * total);
 	console.log('random = ' + random);
-	if (random < SHOW_TOAST_PERCENT * 0.01) {
-		drawToasts();
+	if (random < toasts.length) {
+		drawToasts(random);
 		setTimeout(draw, SHOW_TOAST_INTERVAL)
 	} else {
-		drawPhotoBooth();
+		drawPhotoBooth(random - toasts.length);
 		setTimeout(draw, SHOW_PHOTOBOOTH_INTERVAL)
 	}
 
@@ -185,18 +200,14 @@ function hideLastShown() {
 	}
 }
 
-function drawToasts() {
-	var random = (lastToastIndex + 1) % toasts.length;
-	console.log(" random = " + random + " id " + toasts[random].id);
-	$('#toast' + toasts[random].id).fadeIn(1000);
-	lastToastIndex = random;
+function drawToasts(index) {
+	$('#toast' + toasts[index].id).fadeIn(1000);
+	lastToastIndex = index;
 }
 
-function drawPhotoBooth() {
-	var random = (lastPhotoIndex + 1) % boothPhotos.length;
-	console.log(" random = " + random + " photo " + boothPhotos[random]);
-	$('#photo' + basename(boothPhotos[random])).fadeIn(1000);
-	lastPhotoIndex = random;
+function drawPhotoBooth(index) {
+	$('#photo' + basename(boothPhotos[index])).fadeIn(1000);
+	lastPhotoIndex = index;
 }
 
 </script>

@@ -150,8 +150,23 @@ function updatePhotoBooth(newBoothPhotos) {
 			boothPhotos.push(newBoothPhotos[i]);
 		}
 	}
-	$('#photo_count').text(boothPhotos.length);
+	$('#photo_count').text(getBoothPhotoCount());
 }
+
+function getBoothPhotoCount() {
+    var count = 0;
+    for (i = 0; i < boothPhotos.length; i++) {
+        if (!isPlaceholder(boothPhotos[i])) {
+            count++;
+        }
+    }
+    return count;
+}
+
+function isPlaceholder(filename) {
+    return filename.indexOf('_n_') != -1;
+}
+
 
 function basename(filename) {
 	return filename.substr(0, filename.lastIndexOf('.'));
@@ -171,9 +186,9 @@ function draw() {
 		while (!valid) {
 			valid = true;
 			random = Math.floor(Math.random() * total);
-			if (random >= toasts.length && '_n_'.indexOf(boothPhotos[lastPhotoIndex]) != -1) {
+			if (random >= toasts.length && isPlaceholder(boothPhotos[random - toasts.length])) {
 				valid = false;
-				console.log('selected ' + boothPhotos[lastPhotoIndex] + ' retrying');
+				console.log('selected ' + boothPhotos[random - toasts.length] + ' retrying');
 			}
             if (random == lastRandom) {
                 valid = false;
