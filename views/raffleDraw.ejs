@@ -167,8 +167,17 @@ function draw() {
     var total = toasts.length + boothPhotos.length;
 	var random = Math.floor(Math.random() * total);
 	if (total > 1) {
-		while (random == lastRandom) {
+		var valid = false;
+		while (!valid) {
+			valid = true;
 			random = Math.floor(Math.random() * total);
+			if (random >= toasts.length && '_n_'.indexOf(boothPhotos[lastPhotoIndex]) != -1) {
+				valid = false;
+				console.log('selected ' + boothPhotos[lastPhotoIndex] + ' retrying');
+			}
+            if (random == lastRandom) {
+                valid = false;
+            }
 		}
 	}
 	lastRandom = random;
