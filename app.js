@@ -170,21 +170,23 @@ app.post('/uploadPhotoBooth', function(req, res) {
   var fileName;
   busboy.on('file', function(fieldname, file, filename, encoding, mimetype) {
     console.log('file: ' + filename);
-    saveTo = folder + "/" + filename;
+    saveTo = origin_folder + "/" + filename;
     fileName = filename;
     file.pipe(fs.createWriteStream(saveTo));
   });
   busboy.on('finish', function() {
     var thumbName = fileName.split('.').join('_thumb.');
-    gm(saveTo).autoOrient().resize(1024, 1024).write(folder + '/' + thumbName, function(err) {
+    gm(saveTo).autoOrient().resize(1024, 1024).write(origin_folder + '/' + thumbName, function(err) {
+      var success = true;
       if (err) {
         console.log(err);
+        success = false;
       } else {
-        fs.renameSync(folder + fileName, origin_folder + fileName);
+        fs.renameSync(origin_folder + thumbName, folder + thumbName);
       }
       var path = '/photobooth/' + fileName;
       res.send({
-        'path': path
+        'success': success
       });
       sendLongPollingResponces();
     });
@@ -194,6 +196,7 @@ app.post('/uploadPhotoBooth', function(req, res) {
 });
 
 app.get('/get-toasts', function(req, res) {
+  console.log('query.serial ' + req.query.serial + ' longPollingSerial ' + longPollingSerialNumber);
   if (req.query.serial != longPollingSerialNumber) {
     database.getToasts('authorized', function(toasts) {
       database.getBoothPhotos(function(photos) {
