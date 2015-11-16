@@ -51,11 +51,11 @@ app.get('/raffle-draw', raffleDraw.raffleDraw);
 app.get('/pending', pending.pending);
 app.get('/admin', admin.admin);
 
-app.post('/accept/:fbId', function(req, res) {
-  console.log("accepting " + req.params.fbId);
+app.post('/accept/:clientId', function(req, res) {
+  console.log("accepting " + req.params.clientId);
 
-  var oldPath = 'public/unauthorized/' + req.params.fbId;
-  var newPath = 'public/authorized/' + req.params.fbId;
+  var oldPath = 'public/unauthorized/' + req.params.clientId;
+  var newPath = 'public/authorized/' + req.params.clientId;
 
   var serial = 0;
   if (fs.existsSync(newPath)) {
@@ -72,46 +72,46 @@ app.post('/accept/:fbId', function(req, res) {
     fs.writeFile(newPath + '/serial', serial + 1, function(err) {
       if (err) console.log(err);
       res.send({
-        'id': req.params.fbId
+        'id': req.params.clientId
       });
       sendLongPollingResponces();
     });
   });
 });
 
-app.post('/reject/:fbId', function(req, res) {
-  console.log("rejecting " + req.params.fbId);
+app.post('/reject/:clientId', function(req, res) {
+  console.log("rejecting " + req.params.clientId);
 
-  var path = 'public/unauthorized/' + req.params.fbId;
+  var path = 'public/unauthorized/' + req.params.clientId;
 
   if (fs.existsSync(path)) {
     deleteFolderRecursive(path);
   }
 
   res.send({
-      'id': req.params.fbId
+      'id': req.params.clientId
   });
 });
 
-app.post('/hide/:fbId', function(req, res) {
-  console.log("hiding " + req.params.fbId);
+app.post('/hide/:clientId', function(req, res) {
+  console.log("hiding " + req.params.clientId);
 
-  var path = 'public/authorized/' + req.params.fbId;
+  var path = 'public/authorized/' + req.params.clientId;
 
   fs.writeFile(path + '/hide', 1, function(err) {
     if (err) console.log(err);
       res.send({
-        'id': req.params.fbId
+        'id': req.params.clientId
       });
       sendLongPollingResponces();
   });
 });
 
-app.post('/upload/:fbId', function(req, res) {
+app.post('/upload/:clientId', function(req, res) {
   console.log(req.query.name + " is uploading");
   console.log(req.query.userText);
   // upload to unauthorized folder
-  var folder = "public/unauthorized/" + req.params.fbId;
+  var folder = "public/unauthorized/" + req.params.clientId;
   try {
     fs.mkdirSync(folder);
   } catch(err) {
@@ -128,11 +128,11 @@ app.post('/upload/:fbId', function(req, res) {
     if (err) console.log(err);
   });
 
-  var path = '/unauthorized/' + req.params.fbId;
+  var path = '/unauthorized/' + req.params.clientId;
   var saveTo;
   var busboy = new Busboy({ headers: req.headers });
   busboy.on('file', function(fieldname, file, filename, encoding, mimetype) {
-    console.log('fbId = ' + req.params.fbId + ' file: ' + filename);
+    console.log('clientId = ' + req.params.clientId + ' file: ' + filename);
     saveTo = folder + "/" + filename;
     file.pipe(fs.createWriteStream(saveTo));
   });

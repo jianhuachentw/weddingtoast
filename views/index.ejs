@@ -5,6 +5,7 @@
 <link rel='stylesheet' href='/stylesheets/style.css' />
 <link href="css/bootstrap.min.css" rel="stylesheet">
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width; initial-scale=1.0" />
 </head>
 <body style="background: #DDDDEE;">
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
@@ -12,8 +13,8 @@
 <script src="/javascripts/jquery.form.js"></script>
 <script src="/javascripts/upload.js"></script>
 <script type="text/javascript" src="/javascripts/bootstrap-filestyle.min.js"></script>
+<script src="js/md5.min.js"></script>
 <script>
-  var g_fbResponse;
   // This is called with the results from from FB.getLoginStatus().
   function statusChangeCallback(response) {
     console.log('statusChangeCallback');
@@ -25,16 +26,18 @@
     if (response.status === 'connected') {
       // Logged into your app and Facebook.
       testAPI();
-
+    } else if (clientName = getCookie('name')) {
+      setClientId(md5(clientName));
+      setClientName(clientName);
+      showWelcome(clientName);
     } else if (response.status === 'not_authorized') {
       // The person is logged into Facebook, but not your app.
-      document.getElementById('status').innerHTML = '請登入facebook';
-
+      $('#login_message').show(duration=2000);
       $('#uploadForm').hide(duration=2000);
     } else {
       // The person is not logged into Facebook, so we're not sure if
       // they are logged into this app or not.
-      document.getElementById('status').innerHTML = '請登入facebook';
+      $('#login_message').show(duration=2000);
       $('#uploadForm').hide(duration=2000);
     }
   }
@@ -89,13 +92,21 @@
   function testAPI() {
     console.log('Welcome!  Fetching your information.... ');
     FB.api('/me?locale=zh_TW', function(response) {
-      console.log('Successful login for: ' + response.name);
-      document.getElementById('status').innerHTML =
-        '歡迎你, ' + response.name + '!';
-      g_fbResponse = response;
-      $('#uploadForm').show(duration=2000);
+      setClientId(response.id);
+      setClientName(response.name);
+      showWelcome(response.name);
     });
   }
+
+  function showWelcome(name) {
+    console.log('Successful login for: ' + name);
+      document.getElementById('status').innerHTML =
+        '歡迎你, ' + name + '!';
+      $('#login_message').hide();
+      $('#Welcome_message').show(duration=2000);
+      $('#uploadForm').show(duration=2000);
+  }
+
 </script>
 
 <!--
@@ -106,12 +117,16 @@
 
 <div class="container">
 
-<fb:login-button data-auto-logout-link="true" scope="public_profile,email" onlogin="checkLoginState();">
-</fb:login-button>
-<p>
-<h2><label id="status"></label></h2>
-<p>
+<div id="login_message" style="display:none">
+  <button id="askName" type="button" class="btn btn-success btn-lg" onClick="askName();">輸入您的大名</button>
+  或使用Facebook登入 <fb:login-button data-auto-logout-link="true" scope="public_profile,email" onlogin="checkLoginState();">
+  </fb:login-button>
+</div>
 
+<div id="Welcome_message" style="display:none">
+<button class="btn btn-info btn-md" onClick="logOut();">logout</button>
+<h1><label id="status"></label></h1>
+</div>
 
 
 <form id="uploadForm"
@@ -130,6 +145,41 @@
 </div>
 
 <script>
+  function setCookie(cname, cvalue, exdays) {
+    var d = new Date();
+    d.setTime(d.getTime() + (exdays*24*60*60*1000));
+    var expires = "expires="+d.toUTCString();
+    document.cookie = cname + "=" + cvalue + "; " + expires;
+  }
+
+  function getCookie(cname) {
+    var name = cname + "=";
+    var ca = document.cookie.split(';');
+    for(var i=0; i<ca.length; i++) {
+      var c = ca[i];
+      while (c.charAt(0)==' ') c = c.substring(1);
+      if (c.indexOf(name) == 0) return c.substring(name.length, c.length);
+    }
+    return "";
+  }
+
+  function askName() {
+    var name = prompt("請問您的大名？", "");
+    if (name != null) {
+        setCookie('name', name, 365);
+        setClientId(md5(name));
+        setClientName(name);
+        showWelcome(name);
+    }
+  }
+
+  function logOut() {
+    $('#login_message').show(duration=2000);
+    $('#Welcome_message').hide(duration=2000);
+    $('#uploadForm').hide(duration=2000);
+    setCookie('name', '', -1);
+  }
+
   $(":file").filestyle({buttonBefore: true, size: "lg", buttonName: "btn-primary", buttonText: "選擇照片", iconName: "glyphicon-inbox"});
 </script>
 

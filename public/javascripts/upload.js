@@ -1,10 +1,21 @@
+var clientId = 0;
+var clientName = "";
+
+function setClientId(id) {
+    clientId = id;
+}
+
+function setClientName(name) {
+    clientName = name;
+}
+
 $(document).ready(function() {
  
     $('#uploadForm').submit(function(event) {
         status('正在上傳...');
  
         var formData = $('#uploadForm').serialize();
-        $('#uploadForm').attr("action", "/upload/" + g_fbResponse.id + "?name=" + g_fbResponse.name);
+        $('#uploadForm').attr("action", "/upload/" + clientId + "?name=" + clientName);
         $('#uploadForm').attr('action', $('#uploadForm').attr('action') + '&' + formData);
         $(this).ajaxSubmit({                                                                                                                 
             uploadProgress: function(event, position, total, percentComplete) {
