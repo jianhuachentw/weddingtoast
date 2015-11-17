@@ -115,11 +115,9 @@
   the FB.login() function when clicked.
 -->
 
-<div class="container">
-
 <div id="login_message" style="display:none">
   <button id="askName" type="button" class="btn btn-success btn-lg" onClick="askName();">輸入您的大名</button>
-  或使用Facebook登入 <fb:login-button data-auto-logout-link="true" scope="public_profile,email" onlogin="checkLoginState();">
+  <p><p>或使用Facebook登入 <fb:login-button data-auto-logout-link="true" scope="public_profile,email" onlogin="checkLoginState();">
   </fb:login-button>
 </div>
 
@@ -142,7 +140,6 @@
 
   <button type="button" class="btn btn-success btn-lg" onClick="$('#uploadForm').submit()">上傳</button>
 </form>
-</div>
 
 <script>
   function setCookie(cname, cvalue, exdays) {
