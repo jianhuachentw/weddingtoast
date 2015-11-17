@@ -5,7 +5,7 @@
 <link rel='stylesheet' href='/stylesheets/style.css' />
 <link href="css/bootstrap.min.css" rel="stylesheet">
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width; initial-scale=1.0" />
+<meta name="viewport" content="initial-scale=1.0" />
 </head>
 <body style="background: #DDDDEE;">
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
@@ -32,13 +32,11 @@
       showWelcome(clientName);
     } else if (response.status === 'not_authorized') {
       // The person is logged into Facebook, but not your app.
-      $('#login_message').show(duration=2000);
-      $('#uploadForm').hide(duration=2000);
+      showLogin();
     } else {
       // The person is not logged into Facebook, so we're not sure if
       // they are logged into this app or not.
-      $('#login_message').show(duration=2000);
-      $('#uploadForm').hide(duration=2000);
+      showLogin();
     }
   }
 
@@ -94,19 +92,31 @@
     FB.api('/me?locale=zh_TW', function(response) {
       setClientId(response.id);
       setClientName(response.name);
-      showWelcome(response.name);
+      showWelcome(response.name, true);
     });
   }
 
-  function showWelcome(name) {
+  function showWelcome(name, isFbLogin) {
     console.log('Successful login for: ' + name);
       document.getElementById('status').innerHTML =
         '歡迎你, ' + name + '!';
       $('#login_message').hide();
       $('#Welcome_message').show(duration=2000);
+      if (isFbLogin) {
+        $('#cookie_logout').hide();
+        $('#fb_button').show();
+      } else {
+        $('#cookie_logout').show();
+        $('#fb_button').hide();
+      }
       $('#uploadForm').show(duration=2000);
   }
 
+  function showLogin() {
+    $('#login_message').show(duration=2000);
+    $('#Welcome_message').hide();
+    $('#uploadForm').hide();
+  }
 </script>
 
 <!--
@@ -117,12 +127,13 @@
 
 <div id="login_message" style="display:none">
   <button id="askName" type="button" class="btn btn-success btn-lg" onClick="askName();">輸入您的大名</button>
-  <p><p>或使用Facebook登入 <fb:login-button data-auto-logout-link="true" scope="public_profile,email" onlogin="checkLoginState();">
-  </fb:login-button>
+  <p><p>
+  或使用Facebook登入
 </div>
+<fb:login-button id="fb_button" data-auto-logout-link="true" scope="public_profile,email" onlogin="checkLoginState();"></fb:login-button>
 
 <div id="Welcome_message" style="display:none">
-<button class="btn btn-info btn-md" onClick="logOut();">logout</button>
+<button id="cookie_logout" class="btn btn-info btn-md" onClick="logOut();">登出</button>
 <h1><label id="status"></label></h1>
 </div>
 
@@ -172,6 +183,7 @@
 
   function logOut() {
     $('#login_message').show(duration=2000);
+    $('#fb_button').show(duration=2000);
     $('#Welcome_message').hide(duration=2000);
     $('#uploadForm').hide(duration=2000);
     setCookie('name', '', -1);
