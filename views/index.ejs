@@ -172,7 +172,7 @@
   }
 
   function askName() {
-    var name = prompt("請問您的大名？", "");
+    var name = prompt("「請輸入您的大名」\n註：請輸入您的全名^_^～\n小名容易跟別人重複喔！", "");
     if (name != null) {
         setCookie('name', name, 365);
         setClientId(md5(name));
