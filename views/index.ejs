@@ -15,6 +15,23 @@
 <script type="text/javascript" src="/javascripts/bootstrap-filestyle.min.js"></script>
 <script src="js/md5.min.js"></script>
 <script>
+$.urlParam = function(name){
+    var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+    if (results==null){
+       return null;
+    }
+    else{
+       return results[1] || 0;
+    }
+}
+var bg = $.urlParam('bg');
+var img_url = "url(images/bg" + bg + ".jpg)";
+if (bg) {
+    $("body").css( "background-image", img_url);
+}
+</script>
+
+<script>
   // This is called with the results from from FB.getLoginStatus().
   function statusChangeCallback(response) {
     console.log('statusChangeCallback');
